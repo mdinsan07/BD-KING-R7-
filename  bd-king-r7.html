@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>bd-king-r7 – AI Protocol System</title>
+    <style>
+        body { font-family: monospace; margin: 2rem; }
+        .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; }
+        button { margin: 0.5rem; padding: 0.5rem 1rem; }
+        #console { width: 100%; height: 100px; font-family: monospace; }
+        .output { background: #f4f4f4; padding: 1rem; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>bd-king-r7 – AI Protocol Website</h1>
+    <div class="card" id="demo-ui">
+        <p id="message">হ্যালো, আমি bd-king-r7 ওয়েবসাইট।</p>
+        <button id="colorBtn">রং বদলাও</button>
+        <button id="navBtn">পৃষ্ঠা ২ (ডেমো)</button>
+    </div>
+
+    <h2>🔊 আপনার AI কমান্ড দিন (টেক্সট)</h2>
+    <textarea id="console" placeholder='যেমন: "পটভূমি লাল কর" বা "বাটনে ক্লিক কর" বা "মেসেজ বদলে হ্যালো লেখ"'></textarea><br>
+    <button id="runAI">AI কমান্ড রান করাও</button>
+    <div class="output" id="aiOutput">AI আউটপুট এখানে দেখাবে...</div>
+
+    <script>
+        // ---------- 1. ওয়েবসাইটের executeCommand ফাংশন (প্রোটোকল এক্সিকিউটর) ----------
+        function executeCommand(commandJson) {
+            try {
+                const cmd = typeof commandJson === 'string' ? JSON.parse(commandJson) : commandJson;
+                console.log("Executing:", cmd);
+                const intent = cmd.intent;
+                const payload = cmd.payload || {};
+
+                switch(intent) {
+                    case "mutate":
+                        if(payload.selector && payload.value !== undefined) {
+                            const el = document.querySelector(payload.selector);
+                            if(el) {
+                                if(payload.attribute) el.setAttribute(payload.attribute, payload.value);
+                                else el.innerText = payload.value;
+                            }
+                        }
+                        break;
+                    case "click":
+                        if(payload.selector) {
+                            const btn = document.querySelector(payload.selector);
+                            if(btn) btn.click();
+                        }
+                        break;
+                    case "navigate":
+                        if(payload.url) window.location.href = payload.url;
+                        break;
+                    case "fetch":
+                        if(payload.url) {
+                            fetch(payload.url).then(res => res.text()).then(data => {
+                                document.getElementById("aiOutput").innerText = data.slice(0,200);
+                            });
+                        }
+                        break;
+                    default:
+                        console.warn("Unknown intent:", intent);
+                }
+                return { status: "ok", intent };
+            } catch(e) {
+                return { status: "error", msg: e.message };
+            }
+        }
+
+        // ---------- 2. আপনার বানানো AI (রুল-বেসড) যা টেক্সটকে প্রোটোকল JSON-এ রূপান্তর করে ----------
+        function myAI(userText) {
+            const text = userText.toLowerCase();
+            // রুল 1: রং বদলানোর কমান্ড
+            if(text.includes("পটভূমি") && text.includes("লাল")) {
+                return { intent: "mutate", payload: { selector: "body", attribute: "style", value: "background-color:red" } };
+            }
+            if(text.includes("পটভূমি") && text.includes("নীল")) {
+                return { intent: "mutate", payload: { selector: "body", attribute: "style", value: "background-color:blue" } };
+            }
+            // রুল 2: বাটনে ক্লিক করার কমান্ড
+            if(text.includes("বাটন") && text.includes("ক্লিক")) {
+                return { intent: "click", payload: { selector: "#colorBtn" } };
+            }
+            // রুল 3: মেসেজ বদলানো
+            if(text.includes("মেসেজ বদলে")) {
+                let newMsg = text.split("মেসেজ বদলে")[1].trim();
+                if(!newMsg) newMsg = "AI বদলে দিয়েছে!";
+                return { intent: "mutate", payload: { selector: "#message", value: newMsg } };
+            }
+            // রুল 4: নেভিগেট
+            if(text.includes("পৃষ্ঠা ২")) {
+                return { intent: "navigate", payload: { url: "#page2-demo" } };
+            }
+            // ডিফল্ট: কোনো ম্যাচ না পেলে একটি হেল্পার আউটপুট
+            return { intent: "mutate", payload: { selector: "#aiOutput", value: "AI বুঝতে পারেনি। লেখা: "+userText } };
+        }
+
+        // ---------- 3. কানেক্ট করা: AI আউটপুটকে executeCommand এ পাঠানো ----------
+        function runAIFromConsole() {
+            const userInput = document.getElementById("console").value;
+            const aiCommand = myAI(userInput);
+            document.getElementById("aiOutput").innerText = JSON.stringify(aiCommand, null, 2);
+            const result = executeCommand(aiCommand);
+            console.log("Execution result:", result);
+        }
+
+        // UI বাটনগুলোর সাথে ডিফল্ট অ্যাকশন (মানুষ সরাসরি ক্লিক করলেও কাজ করবে)
+        document.getElementById("colorBtn").onclick = () => {
+            document.body.style.backgroundColor = 
+                document.body.style.backgroundColor === 'red' ? 'white' : 'red';
+        };
+        document.getElementById("navBtn").onclick = () => {
+            alert("এটি ডেমো নেভিগেশন। আপনি চাইলে /page2 বানাতে পারেন।");
+        };
+        document.getElementById("runAI").onclick = runAIFromConsole;
+    </script>
+</body>
+</html>
