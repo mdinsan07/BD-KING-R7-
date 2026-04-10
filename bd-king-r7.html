@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD King R7</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BD King R7</h1>
+        <div id="message" class="error"></div>
+        <div class="input-group">
+            <label for="userInput">Enter something:</label>
+            <input type="text" id="userInput" placeholder="Type here...">
+        </div>
+        <button id="submitBtn">Submit</button>
+        <script>
+            document.getElementById('submitBtn').addEventListener('click', function() {
+                const input = document.getElementById('userInput').value;
+                const messageBox = document.getElementById('message');
+                messageBox.innerHTML = '';
+                if (!input) {
+                    messageBox.innerHTML = 'Error: Please provide input.';
+                    return;
+                }
+                // Add more AI rules here
+                const response = `AI response for: ${input}`; // Placeholder for AI response
+                messageBox.classList.remove('error');
+                messageBox.classList.add('success');
+                messageBox.innerHTML = response;
+            });
+        </script>
+    </div>
+</body>
+</html>
